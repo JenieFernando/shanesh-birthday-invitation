@@ -1,0 +1,380 @@
+/* =========================================================================
+   Shanesh is ONE! — Evening Blue Jungle + Racing Birthday Invitation
+   Mobile-first layout: fixed 3D evening jungle world with a racing car,
+   checkered-flag waving animals, glowing fireflies, and pop-up detail cards.
+   ========================================================================= */
+:root{
+  --ink:#2c4a3a; --deep:#1d5a3a; --leaf:#2f8a55; --coral:#f0793f; --coral-d:#bb4f22;
+  --gold:#ffc23d; --cream:#fff8e4; --bounce:cubic-bezier(.34,1.56,.64,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  font-family:Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--ink);
+  background:linear-gradient(#0b1c42 0%,#163673 55%,#122b4d 100%) fixed;
+  overflow-x:hidden;
+}
+body.locked{overflow:hidden;height:100svh}
+svg{display:block;overflow:visible}
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+button{font:inherit}
+
+/* ---------- 3D Canvas & Foreground Parallax ---------- */
+#safari3d{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  z-index:0;
+  touch-action:pan-y;
+}
+.fg-leaves{
+  position:fixed;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  overflow:hidden;
+  opacity:0;
+  transition:opacity .8s ease;
+}
+body:not(.locked) .fg-leaves{opacity:1}
+.fg-leaf{
+  position:absolute;
+  width:clamp(74px,18vw,130px);
+  aspect-ratio:200/240;
+  filter:drop-shadow(0 8px 12px rgba(4,12,28,.45));
+  will-change:transform;
+}
+.fl1{top:10%;left:-11%;transform:rotate(54deg)}
+.fl2{top:18%;right:-11%;transform:rotate(-56deg)}
+.fl3{bottom:-3%;left:-9%;transform:rotate(32deg)}
+.fl4{bottom:-3%;right:-9%;transform:rotate(-32deg)}
+
+/* ---------- Scrollable Story Overlay ---------- */
+main#story{
+  position:relative;
+  z-index:3;
+  max-width:540px;
+  margin:0 auto;
+  pointer-events:none;
+}
+
+/* ---------- UI Chrome ---------- */
+.progress{position:fixed;inset:0 0 auto 0;height:5px;z-index:95;background:#ffffff30;pointer-events:none}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffc23d,#4da8ff);border-radius:0 4px 4px 0}
+.sound{
+  position:fixed;top:max(14px,env(safe-area-inset-top));right:14px;z-index:96;
+  width:46px;height:46px;border-radius:50%;border:0;color:var(--deep);
+  background:#fffbe9eb;backdrop-filter:blur(6px);
+  box-shadow:0 4px 0 #d8c58e,0 8px 14px rgba(0,0,0,.3);
+  display:grid;place-items:center;cursor:pointer;
+}
+.sound[hidden]{display:none}
+.sound:active{transform:translateY(3px);box-shadow:0 1px 0 #d8c58e}
+.sound[aria-pressed="false"] .wv{display:none}
+.sound[aria-pressed="true"] .mute{display:none}
+
+.toast{
+  position:fixed;z-index:97;left:50%;bottom:max(22px,env(safe-area-inset-bottom));
+  translate:-50% 20px;opacity:0;pointer-events:none;
+  background:#fffbe9;color:var(--deep);padding:12px 20px;border-radius:30px;
+  font-weight:900;text-align:center;
+  box-shadow:0 6px 0 #d8c58e,0 12px 24px rgba(0,0,0,.35);
+  transition:.3s var(--bounce);max-width:88vw;width:max-content;
+}
+.toast.show{opacity:1;translate:-50% 0}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.55em;
+  font:700 1rem Fredoka,sans-serif;letter-spacing:.04em;color:#fff;text-decoration:none;
+  padding:.8em 1.45em;border:0;border-radius:999px;cursor:pointer;position:relative;
+  background:linear-gradient(#ff9d66,#f0723b);
+  box-shadow:0 5px 0 var(--coral-d),0 12px 18px rgba(10,18,40,.4);
+  transition:transform .12s,box-shadow .12s;touch-action:manipulation;pointer-events:auto;
+}
+.btn::after{
+  content:"";position:absolute;left:12%;right:12%;top:6%;height:36%;
+  border-radius:999px;background:linear-gradient(#ffffff70,#ffffff00);pointer-events:none;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--coral-d),0 4px 8px rgba(10,18,40,.4)}
+.btn.sm{font-size:.88rem;padding:.65em 1.15em;box-shadow:0 4px 0 var(--coral-d),0 8px 12px rgba(10,18,40,.32)}
+.btn.big{font-size:1.14rem;padding:.85em 1.6em}
+.btn.rsvp{background:linear-gradient(#58c27f,#2f9a5a);box-shadow:0 5px 0 #1f6e40,0 12px 18px rgba(5,20,15,.45)}
+.btn.rsvp:active{box-shadow:0 1px 0 #1f6e40}
+
+/* =========================================================================
+   COVER  (evening blue vignette framing the live 3D car & bear explorer)
+   ========================================================================= */
+.cover{
+  position:fixed;inset:0;z-index:100;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(circle at 50% 44%,rgba(255,255,255,0) 24%,rgba(19,48,105,.78) 56%,rgba(8,22,56,.96) 100%);
+  transition:opacity .9s .25s ease,visibility 0s 1.2s;
+}
+.cover.open{opacity:0;visibility:hidden;pointer-events:none}
+.cover-inner{
+  position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;
+  text-align:center;gap:clamp(8px,1.8svh,16px);
+  padding:max(14px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom));
+  transition:opacity .45s,scale .9s ease;
+}
+.cover.open .cover-inner{opacity:0;scale:1.15}
+.label{
+  font:900 .66rem Nunito;letter-spacing:.18em;color:#12346e;
+  background:#ffffffe6;backdrop-filter:blur(6px);
+  padding:.55em 1.15em;border-radius:99px;max-width:92vw;
+  box-shadow:0 3px 10px rgba(0,10,30,.28);
+}
+.frame-wrap{
+  position:relative;width:min(78vw,44svh,380px);aspect-ratio:1;
+  rotate:-2deg;animation:floaty 5.5s ease-in-out infinite;perspective:900px;
+}
+.frame{
+  position:absolute;inset:0;border-radius:8%;overflow:hidden;
+  border:clamp(6px,1.8vw,9px) solid #fffdf5;
+  background:transparent;
+  box-shadow:0 .55rem 0 #a3c3eb,0 1.4rem 2.4rem rgba(4,12,32,.6),inset 0 0 28px rgba(255,250,225,.2);
+  transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+  transition:transform .14s linear;
+}
+.shine{
+  position:absolute;inset:0;
+  background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.32) 50%,transparent 62%);
+  background-size:260% 100%;background-position:calc(50% + var(--ry,0deg)*-6%) 0;
+  pointer-events:none;mix-blend-mode:soft-light;
+}
+.coin{
+  position:absolute;z-index:3;top:-5%;left:-6%;width:25%;aspect-ratio:1;
+  border-radius:50%;display:grid;place-content:center;text-align:center;rotate:-10deg;
+  background:radial-gradient(circle at 32% 28%,#fff1a8 0,#ffc93f 45%,#e0901a 100%);
+  border:3px solid #fff2b8;box-shadow:0 5px 0 #b86f12,0 10px 16px rgba(40,20,0,.45);
+  animation:coin 3.6s ease-in-out infinite;
+}
+.coin b{font:700 clamp(1.8rem,8.5vw,2.9rem)/.9 Fredoka;color:#fff;text-shadow:0 3px 0 #c9791a}
+.coin small{font:900 .5rem Nunito;letter-spacing:.14em;color:#8a4f0c}
+.twinkle{
+  position:absolute;width:20px;height:20px;background:#fff5a8;
+  clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);
+  animation:twinkle 2.2s ease-in-out infinite;filter:drop-shadow(0 0 6px #ffeb7a);
+}
+.t1{top:2%;right:-3%;animation-delay:-.4s}
+.t2{bottom:12%;left:-5%;width:15px;height:15px;animation-delay:-1.2s}
+.t3{top:44%;right:-6%;width:12px;height:12px;animation-delay:-.8s}
+.cover-title{
+  margin:0;font:700 clamp(2.3rem,11.5vw,3.9rem)/.95 Fredoka;
+  color:#fff;text-shadow:0 3px 0 #102a5c,0 8px 18px rgba(4,10,30,.55);
+}
+.cover-title em,.one b{
+  font-style:normal;background:linear-gradient(#ffe074,#ff9a2e);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 .05em 0 #d4651a) drop-shadow(0 .1em 0 #a64a12) drop-shadow(0 .2em .12em rgba(10,15,35,.45));
+}
+.hint{font-weight:800;color:#dbe9ff;font-size:.78rem;text-shadow:0 1px 4px rgba(0,10,30,.6)}
+
+.curtain{position:absolute;top:0;bottom:0;width:32%;z-index:4;pointer-events:none;transition:translate 1.1s cubic-bezier(.7,0,.3,1)}
+.curtain.l{left:0}.curtain.r{right:0}
+.curtain svg{
+  position:absolute;width:min(34vw,150px);aspect-ratio:200/240;
+  rotate:var(--r);transform-origin:50% 85%;
+  filter:drop-shadow(0 8px 12px rgba(4,12,28,.5));animation:leafSway 6s ease-in-out infinite;
+}
+.curtain svg.sm{width:min(24vw,108px);animation-delay:-2s}
+.curtain svg:nth-child(2n){animation-delay:-1.5s}
+.cover.open .curtain.l{translate:-125% 0}
+.cover.open .curtain.r{translate:125% 0}
+
+/* =========================================================================
+   HERO  (evening-readable header leaving open room for car headlights & fireflies)
+   ========================================================================= */
+.hero{
+  position:relative;
+  height:100svh;
+  min-height:600px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  align-items:center;
+  text-align:center;
+  padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom));
+}
+.hero-copy{display:flex;flex-direction:column;align-items:center}
+.pill{
+  display:inline-block;font:900 .64rem Nunito;letter-spacing:.18em;color:#12346e;
+  background:#ffffffe8;backdrop-filter:blur(6px);
+  padding:.55em 1.2em;border-radius:99px;box-shadow:0 3px 12px rgba(0,10,30,.28);
+}
+.hero h1{margin:.35em 0 0;display:flex;flex-direction:column;align-items:center;line-height:.9}
+.t-sm{
+  font:600 clamp(1.35rem,6.4vw,1.95rem) Fredoka;color:#ffffff;
+  text-shadow:0 2px 0 #12346e,0 4px 14px rgba(4,12,32,.65);
+}
+.one{display:flex;gap:.02em;font:700 clamp(3.4rem,16vw,5.2rem)/.95 Fredoka;margin-top:-.02em}
+.one b{display:inline-block;animation:hop 2.8s var(--bounce) infinite}
+.one b:nth-child(2){animation-delay:.12s}
+.one b:nth-child(3){animation-delay:.24s}
+.one b:nth-child(4){animation-delay:.36s;rotate:8deg}
+.hero-copy p{
+  font-weight:800;font-size:clamp(.84rem,3.6vw,.98rem);line-height:1.3;
+  margin:.28em 0 0;color:#eaf2ff;
+  background:rgba(12,30,72,.64);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.22);
+  padding:.38em 1em;border-radius:99px;
+}
+.hero-cta{display:flex;flex-direction:column;align-items:center;gap:8px}
+.tap-tip{
+  font-weight:800;font-size:.74rem;letter-spacing:.04em;color:#fff6cc;
+  background:rgba(10,24,58,.66);backdrop-filter:blur(6px);
+  padding:.38em .95em;border-radius:99px;
+}
+
+/* =========================================================================
+   JOURNEY  (3 pop-up cards aligned cleanly to alternate sides of the road)
+   ========================================================================= */
+.journey{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height:280svh;
+  padding:16svh 14px 22svh;
+  gap:46svh;
+}
+.stop{display:flex;width:100%}
+.stop.s1{justify-content:flex-start}
+.stop.s2{justify-content:flex-end}
+.stop.s3{justify-content:flex-start}
+
+.card{
+  position:relative;
+  width:min(66vw,252px);
+  padding:28px 16px 20px;
+  border-radius:24px;
+  text-align:center;
+  pointer-events:auto;
+  background:linear-gradient(rgba(255,252,243,.96),rgba(255,241,208,.95));
+  backdrop-filter:blur(8px);
+  box-shadow:0 6px 0 #dfbf7c,0 18px 34px rgba(4,12,32,.48),inset 0 0 0 3px #fff;
+}
+.card.c1{transform:rotate(-1.5deg)}
+.card.c2{transform:rotate(1.4deg)}
+.card.c3{transform:rotate(-1.2deg)}
+.card::before{
+  content:"";position:absolute;inset:8px;
+  border:2px dashed #e6cd93;border-radius:18px;pointer-events:none;
+}
+.card>*{position:relative}
+.badge{
+  position:absolute!important;top:-16px;left:14px;width:40px;height:40px;
+  border-radius:50%;display:grid;place-items:center;
+  font:700 1.25rem Fredoka;color:#fff;
+  background:radial-gradient(circle at 32% 28%,#ffb07a,#f0723b 70%);
+  box-shadow:0 4px 0 var(--coral-d),0 8px 12px rgba(10,18,40,.35);
+  border:3px solid #fff;
+}
+.tag{display:block;font:900 .66rem Nunito;letter-spacing:.17em;color:#5f9a6b;margin:4px 0 6px}
+.card h3{margin:2px 0 6px;font:600 1.45rem/1.05 Fredoka;color:var(--deep)}
+.card p{margin:5px 0;font-weight:800;line-height:1.35}
+.hello{font:500 1.15rem Fredoka;color:#d4642e}
+.hello b{font-weight:600;overflow-wrap:anywhere}
+.small{font-size:.82rem}
+.place{font-size:.92rem!important;margin-bottom:12px!important}
+.date{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0}
+.date b{
+  font:700 3.3rem/.9 Fredoka;color:#f58a4a;
+  text-shadow:0 3px 0 #d4612a,0 5px 0 #ac4416,0 10px 10px rgba(90,35,0,.22);
+}
+.date span{display:flex;flex-direction:column;align-items:flex-start;font:700 1.2rem/1 Fredoka;letter-spacing:.08em;color:var(--deep)}
+.date small{font:800 .72rem Nunito;letter-spacing:.12em;color:#5f9a6b}
+.when{font-size:.9rem;margin:4px 0 10px!important}
+.when b{color:#d4642e}
+.count{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 12px}
+.count div{background:#fff;border-radius:11px;padding:6px 0 5px;box-shadow:0 3px 0 #ecdbb2}
+.count b{display:block;font:600 1.15rem/1.05 Fredoka;color:#e07a42;font-variant-numeric:tabular-nums}
+.count small{font:900 .5rem Nunito;letter-spacing:.08em;color:#6b8f73}
+
+/* Pop-up reveal animation */
+.reveal{
+  opacity:0;
+  scale:.82;
+  translate:0 32px;
+  transition:opacity .45s ease,scale .75s var(--bounce),translate .75s var(--bounce);
+}
+.reveal.in{opacity:1;scale:1;translate:0 0}
+
+/* =========================================================================
+   FINALE  (open center stage for racing cake, flashlights & cheering animals)
+   ========================================================================= */
+.finale{
+  position:relative;
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  align-items:center;
+  text-align:center;
+  padding:max(28px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom));
+}
+.fin-head h2{
+  margin:0 0 10px;
+  font:700 clamp(2.1rem,10vw,3.1rem)/.95 Fredoka;
+  color:#fff;
+  text-shadow:0 3px 0 #133978,0 6px 0 #0a2048,0 12px 22px rgba(4,10,28,.7);
+}
+.recap{margin:0;font-weight:800;font-size:.82rem;line-height:1.8;color:#f3f8ff}
+.recap b{
+  background:rgba(12,32,76,.72);backdrop-filter:blur(6px);
+  padding:.42em .8em;border-radius:99px;white-space:nowrap;display:inline-block;margin:.1em;
+  border:1px solid rgba(255,255,255,.26);
+}
+.fin-stage{flex:1;min-height:36svh}
+.fin-dock{display:flex;flex-direction:column;align-items:center;gap:12px}
+.wish-pill{
+  font:800 .8rem Nunito;letter-spacing:.06em;color:var(--deep);
+  background:#fffbe9eb;backdrop-filter:blur(6px);border:0;
+  padding:.62em 1.25em;border-radius:99px;cursor:pointer;
+  box-shadow:0 4px 0 #d8c58e,0 8px 16px rgba(4,12,30,.38);
+  pointer-events:auto;touch-action:manipulation;transition:transform .12s;
+}
+.wish-pill:active{transform:translateY(3px)}
+.signoff{
+  margin:2px 0 0;font:600 .95rem Fredoka;color:#eef6ff;letter-spacing:.03em;
+  text-shadow:0 2px 8px rgba(4,10,30,.75);
+}
+
+/* ---------- Screen Burst & Confetti ---------- */
+.spark{
+  position:fixed;z-index:98;pointer-events:none;width:var(--s,14px);aspect-ratio:1;
+  background:var(--c,#ffc23d);
+  clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);
+  animation:spark .85s cubic-bezier(.2,.7,.3,1) forwards;
+}
+.spark.heart{
+  clip-path:path("M12 21C5 15 1 11.5 1 7.5A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 11 1.5C23 11.5 19 15 12 21Z");
+  width:22px;aspect-ratio:auto;height:22px;scale:calc(var(--s,14)/22);
+}
+.conf{
+  position:fixed;z-index:98;top:-16px;left:var(--l);width:9px;height:14px;
+  background:var(--c);border-radius:2px;pointer-events:none;
+  animation:confetti var(--t,2.2s) var(--dl,0s) cubic-bezier(.3,.6,.5,1) forwards;
+}
+.conf.round{border-radius:50%;height:9px}
+
+/* ---------- Keyframes ---------- */
+@keyframes floaty{0%,100%{translate:0 0}50%{translate:0 -9px}}
+@keyframes coin{0%,100%{rotate:-10deg;scale:1}50%{rotate:-4deg;scale:1.06}}
+@keyframes twinkle{0%,100%{scale:.4;opacity:.4}50%{scale:1.2;opacity:1}}
+@keyframes leafSway{0%,100%{rotate:var(--r)}50%{rotate:calc(var(--r) + 3deg)}}
+@keyframes hop{0%,60%,100%{translate:0 0}30%{translate:0 -.12em}}
+@keyframes spark{0%{opacity:1;scale:.3;translate:0 0;rotate:0deg}100%{opacity:0;scale:1.2;translate:var(--dx) var(--dy);rotate:200deg}}
+@keyframes confetti{0%{opacity:1;translate:0 0;rotate:0deg}100%{opacity:.9;translate:var(--dx) 112svh;rotate:var(--rot)}}
+
+@media (max-height:660px){
+  .label,.hint{display:none}
+  .hero h1{margin-top:.15em}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}

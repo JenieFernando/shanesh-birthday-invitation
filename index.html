@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10295c">
+<meta name="description" content="Come celebrate Shanesh's first birthday on a twilight jungle racing adventure!">
+<meta property="og:title" content="Shanesh is One! — Birthday Racing Safari">
+<meta property="og:description" content="Hop in the race car and follow the glowing jungle road to Shanesh's first birthday party.">
+<title>Shanesh is One! — Birthday Racing Safari</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body class="locked">
+
+<!-- ======================================================================
+     LIVE 3D EVENING JUNGLE RACING CANVAS
+     ====================================================================== -->
+<canvas id="safari3d" aria-hidden="true"></canvas>
+
+<!-- Subtle layered foreground jungle leaves for extra parallax depth -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gLeafFg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#58b860"/>
+      <stop offset=".55" stop-color="#227546"/>
+      <stop offset="1" stop-color="#0f3f28"/>
+    </linearGradient>
+  </defs>
+  <symbol id="fgLeaf" viewBox="0 0 200 240">
+    <path d="M100 238C28 212-6 132 22 66C36 34 70 14 100 6C130 14 164 34 178 66C206 132 172 212 100 238Z" fill="url(#gLeafFg)"/>
+    <path d="M100 234V26M100 90L50 60M100 90L150 60M100 140L40 108M100 140L160 108M100 188L56 160M100 188L144 160" stroke="#9fe688" stroke-opacity=".38" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<div class="fg-leaves" aria-hidden="true">
+  <svg class="fg-leaf fl1" data-d="-18"><use href="#fgLeaf"/></svg>
+  <svg class="fg-leaf fl2" data-d="-22"><use href="#fgLeaf"/></svg>
+  <svg class="fg-leaf fl3" data-d="-16"><use href="#fgLeaf"/></svg>
+  <svg class="fg-leaf fl4" data-d="-20"><use href="#fgLeaf"/></svg>
+</div>
+
+<!-- ======================================================================
+     UI CHROME
+     ====================================================================== -->
+<div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+<button class="sound" id="soundBtn" type="button" aria-label="Toggle music" aria-pressed="true" hidden>
+  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+    <path class="spk" d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/>
+    <path class="wv" d="M16 8.5a5 5 0 0 1 0 7M18.6 6a8.6 8.6 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path class="mute" d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </svg>
+</button>
+
+<!-- ======================================================================
+     COVER  (frames the live 3D race car & little bear explorer)
+     ====================================================================== -->
+<section class="cover" id="cover" aria-label="Invitation cover">
+  <div class="curtain l" aria-hidden="true">
+    <svg style="--r:62deg;top:-2%;left:-22%"><use href="#fgLeaf"/></svg>
+    <svg style="--r:108deg;top:62%;left:-24%"><use href="#fgLeaf"/></svg>
+    <svg class="sm" style="--r:42deg;top:18%;left:-16%"><use href="#fgLeaf"/></svg>
+  </div>
+  <div class="curtain r" aria-hidden="true">
+    <svg style="--r:-62deg;top:-2%;right:-22%"><use href="#fgLeaf"/></svg>
+    <svg style="--r:-108deg;top:62%;right:-24%"><use href="#fgLeaf"/></svg>
+    <svg class="sm" style="--r:-42deg;top:18%;right:-16%"><use href="#fgLeaf"/></svg>
+  </div>
+
+  <div class="cover-inner">
+    <span class="label">YOU'RE INVITED TO A LITTLE ADVENTURE</span>
+    <div class="frame-wrap" id="frameWrap">
+      <div class="frame">
+        <span class="shine"></span>
+      </div>
+      <div class="coin" aria-hidden="true"><b>1</b><small>YEAR</small></div>
+      <i class="twinkle t1"></i><i class="twinkle t2"></i><i class="twinkle t3"></i>
+    </div>
+    <p class="cover-title">Shanesh is <em>ONE!</em></p>
+    <button class="btn big" id="startBtn" type="button">
+      Start the adventure
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <small class="hint">Best with sound on</small>
+  </div>
+</section>
+
+<!-- ======================================================================
+     STORY  (scroll track over the 3D evening jungle; text secondary to scene)
+     ====================================================================== -->
+<main id="story">
+
+  <!-- ================= HERO ================= -->
+  <header class="hero" id="top">
+    <div class="hero-copy">
+      <span class="pill">SHANESH'S 1ST BIRTHDAY</span>
+      <h1>
+        <span class="t-sm">Shanesh is</span>
+        <span class="one" aria-label="ONE"><b>O</b><b>N</b><b>E</b><b>!</b></span>
+      </h1>
+      <p>Hop in the race car and follow the road to the party.</p>
+    </div>
+    <div class="hero-cta">
+      <a href="#journey" class="btn sm" id="driveBtn">
+        Let's drive
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="tap-tip">Tap animals &amp; balloons along the way</span>
+    </div>
+  </header>
+
+  <!-- ================= JOURNEY (3 Pop-Up Stops) ================= -->
+  <section class="journey" id="journey">
+
+    <div class="stop s1">
+      <article class="card c1 reveal">
+        <span class="badge">1</span>
+        <span class="tag">YOU'RE INVITED</span>
+        <h3>Come to the party!</h3>
+        <p class="hello">Hello, <b id="guestName">dear friend</b>!</p>
+        <p class="small">Shanesh is turning one — and you're on the guest list.</p>
+      </article>
+    </div>
+
+    <div class="stop s2">
+      <article class="card c2 reveal">
+        <span class="badge">2</span>
+        <span class="tag">SAVE THE DATE</span>
+        <div class="date"><b>21</b><span>NOV<small>2026</small></span></div>
+        <p class="when">Saturday &middot; <b>7:00 PM</b></p>
+        <div class="count" id="countdown" aria-live="off">
+          <div><b id="cdD">--</b><small>DAYS</small></div>
+          <div><b id="cdH">--</b><small>HRS</small></div>
+          <div><b id="cdM">--</b><small>MIN</small></div>
+          <div><b id="cdS">--</b><small>SEC</small></div>
+        </div>
+        <button class="btn sm" id="calBtn" type="button">Add to calendar</button>
+      </article>
+    </div>
+
+    <div class="stop s3">
+      <article class="card c3 reveal">
+        <span class="badge">3</span>
+        <span class="tag">THE PARTY PLACE</span>
+        <h3>Hotel Camellia</h3>
+        <p class="small place">Dankotuwa, Sri Lanka</p>
+        <a class="btn sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=Hotel+Camellia%2C+Dankotuwa%2C+Sri+Lanka" target="_blank" rel="noopener">
+          Get directions
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </article>
+    </div>
+
+  </section>
+
+  <!-- ================= FINALE ================= -->
+  <section class="finale" id="finale">
+    <div class="fin-head">
+      <h2>See you at the<br>finish line!</h2>
+      <p class="recap"><b>Sat 21 Nov</b> &middot; <b>7:00 PM</b> &middot; <b>Hotel Camellia</b></p>
+    </div>
+
+    <div class="fin-stage" aria-hidden="true"></div>
+
+    <div class="fin-dock">
+      <button class="wish-pill" id="cakeWishBtn" type="button">Tap the cake to make a wish</button>
+      <a class="btn big rsvp" id="rsvpBtn" href="#">
+        RSVP on WhatsApp
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <p class="signoff">With lots of love for Shanesh's big day!</p>
+    </div>
+  </section>
+
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script type="module" src="script.js"></script>
+</body>
+</html>
