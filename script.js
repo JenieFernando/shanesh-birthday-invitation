@@ -14,8 +14,6 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
    CONFIG — edit these before sharing
    ------------------------------------------------------------------ */
 const CONFIG = {
-  // Family WhatsApp number: country code + digits only, no "+" or spaces (e.g. '94771234567')
-  whatsapp: 'ADD_WHATSAPP_NUMBER_HERE',
   // Party start (Sri Lanka time, UTC+05:30)
   eventStart: '2026-11-21T19:00:00+05:30',
   // Used only for the "Add to calendar" file
@@ -215,7 +213,7 @@ const io = new IntersectionObserver(entries => {
 $$('.reveal').forEach(el => io.observe(el));
 
 /* ------------------------------------------------------------------
-   Countdown & Calendar & WhatsApp RSVP
+   Countdown & Calendar
    ------------------------------------------------------------------ */
 const eventAt = new Date(CONFIG.eventStart).getTime();
 const pad = n => String(n).padStart(2, '0');
@@ -250,19 +248,6 @@ $('#calBtn').addEventListener('click', () => {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
   toast('Saved — open the file to add it');
-});
-
-$('#rsvpBtn').addEventListener('click', e => {
-  if (!/^\d{8,15}$/.test(CONFIG.whatsapp)) {
-    e.preventDefault();
-    toast('The family WhatsApp number still needs to be added.');
-    return;
-  }
-  const who = guest ? `This is ${guest}. ` : '';
-  const msg = `Hello! ${who}I would like to RSVP for Shanesh's 1st birthday celebration on 21 November 2026 at 7:00 PM.`;
-  e.currentTarget.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
-  e.currentTarget.target = '_blank';
-  e.currentTarget.rel = 'noopener';
 });
 
 /* =========================================================================
