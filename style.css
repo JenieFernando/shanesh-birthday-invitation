@@ -103,8 +103,6 @@ main#story{
 .btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--coral-d),0 4px 8px rgba(10,18,40,.4)}
 .btn.sm{font-size:.88rem;padding:.65em 1.15em;box-shadow:0 4px 0 var(--coral-d),0 8px 12px rgba(10,18,40,.32)}
 .btn.big{font-size:1.14rem;padding:.85em 1.6em}
-.btn.rsvp{background:linear-gradient(#58c27f,#2f9a5a);box-shadow:0 5px 0 #1f6e40,0 12px 18px rgba(5,20,15,.45)}
-.btn.rsvp:active{box-shadow:0 1px 0 #1f6e40}
 
 /* =========================================================================
    COVER  (evening blue vignette framing the live 3D car & bear explorer)
