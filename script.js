@@ -1,5 +1,5 @@
 /* =========================================================================
-   Shanesh is ONE! — Evening Blue Jungle + Racing Birthday Safari
+   Shenesh is ONE! — Evening Blue Jungle + Racing Birthday Safari
    Combines the lush 3D forest, friendly jungle animals (waving black &
    white checkered racing flags!), glowing yellow fireflies lighting the
    trail, twilight blue night sky with moon & stars, white #1 racing car
@@ -234,17 +234,17 @@ $('#calBtn').addEventListener('click', () => {
   const f = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const esc = t => t.replace(/,/g, '\\,');
   const ics = [
-    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Shanesh Birthday Racing Safari//EN',
-    'BEGIN:VEVENT', 'UID:shanesh-1st-birthday@invite',
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Shenesh Birthday Racing Safari//EN',
+    'BEGIN:VEVENT', 'UID:shenesh-1st-birthday@invite',
     'DTSTAMP:' + f(new Date()), 'DTSTART:' + f(s), 'DTEND:' + f(en),
-    "SUMMARY:Shanesh's 1st Birthday Racing Safari",
+    "SUMMARY:Shenesh's 1st Birthday Racing Safari",
     'LOCATION:' + esc(CONFIG.venue),
-    'DESCRIPTION:Come celebrate Shanesh turning one!',
+    'DESCRIPTION:Come celebrate Shenesh turning one!',
     'END:VEVENT', 'END:VCALENDAR',
   ].join('\r\n');
   const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
   const a = document.createElement('a');
-  a.href = url; a.download = 'shanesh-birthday.ics';
+  a.href = url; a.download = 'shenesh-birthday.ics';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
   toast('Saved — open the file to add it');
@@ -264,7 +264,7 @@ let toggleCakeWish = () => {
   if (!cakeLit) {
     confetti(85);
     Sound.chime();
-    toast('Happy 1st birthday, Shanesh!');
+    toast('Happy 1st birthday, Shenesh!');
   }
 };
 
